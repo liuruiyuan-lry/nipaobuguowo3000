@@ -1,0 +1,230 @@
+/* ============================================================
+   张雪峰快跑 - 样式文件
+   移动端优先适配，像素卡通画风，简约干净
+   ============================================================ */
+
+/* ---------- 全局重置 ---------- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* ---------- 禁止移动端默认行为 ---------- */
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    /* 阻止移动端下拉刷新/弹性滚动 */
+    overscroll-behavior: none;
+    -webkit-overflow-scrolling: none;
+    touch-action: manipulation;
+}
+
+body {
+    background: #1a1a2e;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Microsoft YaHei', 'PingFang SC', 'Noto Sans SC', sans-serif;
+    padding: 8px;
+    /* 移动端安全区域适配 */
+    padding-top: max(8px, env(safe-area-inset-top));
+    padding-bottom: max(8px, env(safe-area-inset-bottom));
+}
+
+/* ---------- 游戏主容器 ---------- */
+.game-wrapper {
+    background: #ffffff;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow:
+        0 0 0 4px #333333,
+        0 8px 32px rgba(0, 0, 0, 0.35);
+    max-width: 500px;
+    width: 100%;
+    /* 微信内置浏览器兼容 */
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+}
+
+/* ---------- 顶部信息栏 ---------- */
+.game-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 14px;
+    background: linear-gradient(180deg, #ffffff 0%, #f5f5f5 100%);
+    border-bottom: 2px solid #e8e8e8;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.title-section {
+    flex: 1;
+}
+
+/* 大字标题 - 红色醒目 */
+.game-title {
+    font-size: 20px;
+    font-weight: 900;
+    color: #e74c3c;
+    letter-spacing: 2px;
+    line-height: 1.2;
+    /* 像素风格文字阴影 */
+    text-shadow: 1px 1px 0 #c0392b;
+}
+
+/* 提示小字 */
+.game-hint {
+    font-size: 10px;
+    color: #999999;
+    margin-top: 2px;
+    letter-spacing: 0.5px;
+}
+
+/* ---------- 右上角计分面板 ---------- */
+.score-section {
+    text-align: right;
+    flex-shrink: 0;
+    margin-left: 10px;
+}
+
+.score-row {
+    font-size: 12px;
+    color: #666666;
+    font-weight: 600;
+    line-height: 1.5;
+    white-space: nowrap;
+}
+
+.score-value {
+    color: #e74c3c;
+    font-size: 20px;
+    font-weight: 900;
+    font-family: 'Courier New', 'Consolas', monospace;
+    /* 像素数字风格 */
+    text-shadow: 1px 1px 0 rgba(231, 76, 60, 0.2);
+    min-width: 40px;
+    display: inline-block;
+    text-align: right;
+}
+
+/* ---------- 游戏画布 ---------- */
+#gameCanvas {
+    display: block;
+    width: 100%;
+    background: #fafaf5;
+    /* 防止移动端长按菜单 */
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+    /* 禁止画布上的默认触摸行为（如滚动） */
+    touch-action: none;
+}
+
+/* ---------- 移动端触控提示 ---------- */
+.touch-hint {
+    text-align: center;
+    padding: 8px 12px;
+    font-size: 10px;
+    color: #bbbbbb;
+    background: #fafafa;
+    border-top: 1px solid #f0f0f0;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+/* ---------- 响应式适配 ---------- */
+
+/* 小屏手机（iPhone SE 等） */
+@media (max-width: 374px) {
+    .game-wrapper {
+        border-radius: 14px;
+        box-shadow: 0 0 0 3px #333333, 0 6px 24px rgba(0,0,0,0.3);
+    }
+    .game-header {
+        padding: 8px 10px;
+    }
+    .game-title {
+        font-size: 17px;
+    }
+    .game-hint {
+        font-size: 9px;
+    }
+    .score-value {
+        font-size: 16px;
+    }
+    .score-row {
+        font-size: 10px;
+    }
+    .touch-hint {
+        font-size: 9px;
+        padding: 6px 8px;
+    }
+}
+
+/* 中等手机 */
+@media (min-width: 375px) and (max-width: 414px) {
+    .game-title {
+        font-size: 19px;
+    }
+    .score-value {
+        font-size: 18px;
+    }
+}
+
+/* 平板 / 大屏 */
+@media (min-width: 768px) {
+    .game-wrapper {
+        max-width: 600px;
+        border-radius: 22px;
+    }
+    .game-header {
+        padding: 14px 20px;
+    }
+    .game-title {
+        font-size: 26px;
+    }
+    .game-hint {
+        font-size: 12px;
+    }
+    .score-value {
+        font-size: 24px;
+    }
+    .score-row {
+        font-size: 14px;
+    }
+    .touch-hint {
+        font-size: 12px;
+    }
+}
+
+/* 横屏手机 */
+@media (max-height: 500px) and (orientation: landscape) {
+    body {
+        padding: 4px;
+    }
+    .game-wrapper {
+        max-width: none;
+        max-height: 98vh;
+        display: flex;
+        flex-direction: column;
+    }
+    #gameCanvas {
+        flex: 1;
+        min-height: 0;
+    }
+    .game-header {
+        padding: 6px 12px;
+    }
+    .game-title {
+        font-size: 16px;
+    }
+    .game-hint {
+        font-size: 9px;
+    }
+    .touch-hint {
+        display: none;
+    }
+}
