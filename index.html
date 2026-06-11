@@ -46,22 +46,17 @@
         - assets/voice.mp3 → 台词音效「你跑不过我你信吗」
         - assets/death.mp3 → 死亡失败音效
     -->
-    <audio id="bgMusic" loop preload="auto">
+    <audio id="bgMusic" loop preload="none">
         <!-- 🎵 张雪峰鬼畜音频《念张师》- 已就位！ -->
         <source src="assets/bgm.m4a" type="audio/mp4">
-        <source src="assets/bgm.wav" type="audio/wav">
     </audio>
 
-    <audio id="voiceLine" preload="auto">
+    <audio id="voiceLine" preload="none">
         <source src="assets/voice.wav" type="audio/wav">
-        <!-- ★【替换为你的台词音效】assets/voice.mp3 -->
-        <source src="assets/voice.mp3" type="audio/mpeg">
     </audio>
 
-    <audio id="deathSound" preload="auto">
+    <audio id="deathSound" preload="none">
         <source src="assets/death.wav" type="audio/wav">
-        <!-- ★【替换为你的死亡音效】assets/death.mp3 -->
-        <source src="assets/death.mp3" type="audio/mpeg">
     </audio>
 
     <!-- ==================== 游戏核心脚本 ==================== -->
