@@ -1043,41 +1043,77 @@
         ctx.globalAlpha = 1;
     }
 
-    /** 绘制开始画面 */
+    /** 绘制开始画面 - 全屏白色背景+醒目开始按钮 */
     function drawStartScreen() {
-        // 半透明深色遮罩
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.55)';
+        // 全屏白色背景，完全遮盖游戏画面
+        ctx.fillStyle = '#ffffff';
         ctx.fillRect(0, 0, displayW, displayH);
 
         var cx = displayW / 2;
-        var cy = displayH * 0.35;
+        var cy = displayH * 0.28;
+
+        // 装饰顶栏
+        ctx.fillStyle = '#f0f0f0';
+        ctx.fillRect(0, 0, displayW, displayH * 0.06);
 
         // 标题
-        ctx.fillStyle = '#fff';
-        ctx.font = 'bold ' + Math.floor(displayH * 0.07) + 'px "Microsoft YaHei","PingFang SC",sans-serif';
+        ctx.fillStyle = '#e74c3c';
+        ctx.font = 'bold ' + Math.floor(displayH * 0.08) + 'px "Microsoft YaHei","PingFang SC",sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.shadowColor = 'rgba(0,0,0,0.5)';
-        ctx.shadowBlur = 10;
         ctx.fillText('张雪峰快跑', cx, cy);
 
-        // 目标分数
-        ctx.fillStyle = '#f1c40f';
-        ctx.font = 'bold ' + Math.floor(displayH * 0.04) + 'px "Microsoft YaHei","PingFang SC",sans-serif';
-        ctx.shadowBlur = 6;
-        ctx.fillText('🏆 目标：' + CONFIG.WIN_SCORE + ' 分', cx, cy + displayH * 0.1);
+        // 角色简笔画
+        var charY = cy + displayH * 0.13;
+        ctx.fillStyle = '#2c3e50';
+        ctx.fillRect(cx - 10, charY + 15, 20, 22);
+        ctx.fillStyle = '#f5d5b8';
+        ctx.beginPath();
+        ctx.arc(cx, charY + 6, 10, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#1a1a1a';
+        ctx.fillRect(cx - 8, charY - 6, 16, 8);
+        // 眼镜
+        ctx.strokeStyle = '#111';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.arc(cx - 4, charY + 4, 3, 0, Math.PI * 2); ctx.stroke();
+        ctx.beginPath(); ctx.arc(cx + 4, charY + 4, 3, 0, Math.PI * 2); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(cx, charY + 4); ctx.lineTo(cx, charY + 4); ctx.stroke();
 
-        // 提示
-        var pulse = Math.sin(Date.now() / 500) * 0.3 + 0.7;
+        // 目标分数
+        ctx.fillStyle = '#e67e22';
+        ctx.font = 'bold ' + Math.floor(displayH * 0.045) + 'px "Microsoft YaHei","PingFang SC",sans-serif';
+        var goalY = charY + displayH * 0.13;
+        ctx.fillText('🏆 目标分数：' + CONFIG.WIN_SCORE, cx, goalY);
+
+        // 开始按钮（大号圆角矩形）
+        var btnW = displayW * 0.5;
+        var btnH = displayH * 0.08;
+        var btnX = cx - btnW / 2;
+        var btnY = goalY + displayH * 0.07;
+
+        // 按钮阴影
+        ctx.fillStyle = 'rgba(0,0,0,0.15)';
+        roundRect(btnX + 2, btnY + 2, btnW, btnH, btnH / 2);
+
+        // 按钮主体 - 红色醒目
+        ctx.fillStyle = '#e74c3c';
+        roundRect(btnX, btnY, btnW, btnH, btnH / 2);
+
+        // 按钮高光
+        ctx.fillStyle = 'rgba(255,255,255,0.2)';
+        roundRect(btnX + 3, btnY + 2, btnW - 6, btnH / 2, btnH / 3);
+
+        // 按钮文字 - 闪烁
+        var pulse = Math.sin(Date.now() / 400) * 0.3 + 0.7;
         ctx.fillStyle = 'rgba(255, 255, 255, ' + pulse + ')';
-        ctx.font = 'bold ' + Math.floor(displayH * 0.04) + 'px "Microsoft YaHei","PingFang SC",sans-serif';
-        ctx.shadowBlur = 0;
-        ctx.fillText('👆 点击屏幕开始', cx, cy + displayH * 0.22);
+        ctx.font = 'bold ' + Math.floor(btnH * 0.55) + 'px "Microsoft YaHei","PingFang SC",sans-serif';
+        ctx.fillText('👆  点 击 开 始  👆', cx, btnY + btnH / 2);
 
         // 操作说明
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
-        ctx.font = Math.floor(displayH * 0.025) + 'px "Microsoft YaHei","PingFang SC",sans-serif';
-        ctx.fillText('点击=跳跃 | 长按=高跳 | 下滑=蹲下', cx, cy + displayH * 0.32);
+        ctx.fillStyle = '#999';
+        ctx.font = Math.floor(displayH * 0.026) + 'px "Microsoft YaHei","PingFang SC",sans-serif';
+        ctx.fillText('点击=跳跃 | 长按=高跳 | 下滑=蹲下', cx, btnY + btnH + displayH * 0.06);
 
         ctx.textBaseline = 'alphabetic';
     }
