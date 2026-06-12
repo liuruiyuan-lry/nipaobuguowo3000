@@ -76,6 +76,7 @@
     var gameSpeed = 0;          // 当前游戏速度
     var isGameOver = false;     // 是否游戏结束（死亡）
     var isWin = false;          // 是否通关
+    var isStarted = false;      // 是否已开始（等待开始画面）
     var deathTimer = 0;         // 死亡延迟计时器
     var frameCount = 0;         // 总帧数计数
 
@@ -191,6 +192,16 @@
             e.preventDefault();
         }
 
+        // 还没开始：按任意键开始游戏
+        if (!isStarted) {
+            isStarted = true;
+            if (!hasUserInteracted) {
+                hasUserInteracted = true;
+                tryPlayBgMusic();
+            }
+            return;
+        }
+
         // 跳跃键：空格 / 上箭头 / W
         if ((e.key === ' ' || e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') && !keys[e.key]) {
             keys[e.key] = true;
@@ -236,6 +247,17 @@
     // --- 触摸 ---
     function onTouchStart(e) {
         e.preventDefault();
+
+        // 还没开始：点击开始游戏
+        if (!isStarted) {
+            isStarted = true;
+            if (!hasUserInteracted) {
+                hasUserInteracted = true;
+                tryPlayBgMusic();
+            }
+            return;
+        }
+
         var touch = e.touches[0];
         touchStartY = touch.clientY;
         touchStartTime = Date.now();
@@ -506,6 +528,7 @@
         gameSpeed = CONFIG.BASE_SPEED;
         isGameOver = false;
         isWin = false;
+        isStarted = false;
         deathTimer = 0;
         frameCount = 0;
         obstacleTimer = 0;
@@ -1020,6 +1043,45 @@
         ctx.globalAlpha = 1;
     }
 
+    /** 绘制开始画面 */
+    function drawStartScreen() {
+        // 半透明深色遮罩
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.55)';
+        ctx.fillRect(0, 0, displayW, displayH);
+
+        var cx = displayW / 2;
+        var cy = displayH * 0.35;
+
+        // 标题
+        ctx.fillStyle = '#fff';
+        ctx.font = 'bold ' + Math.floor(displayH * 0.07) + 'px "Microsoft YaHei","PingFang SC",sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.shadowColor = 'rgba(0,0,0,0.5)';
+        ctx.shadowBlur = 10;
+        ctx.fillText('张雪峰快跑', cx, cy);
+
+        // 目标分数
+        ctx.fillStyle = '#f1c40f';
+        ctx.font = 'bold ' + Math.floor(displayH * 0.04) + 'px "Microsoft YaHei","PingFang SC",sans-serif';
+        ctx.shadowBlur = 6;
+        ctx.fillText('🏆 目标：' + CONFIG.WIN_SCORE + ' 分', cx, cy + displayH * 0.1);
+
+        // 提示
+        var pulse = Math.sin(Date.now() / 500) * 0.3 + 0.7;
+        ctx.fillStyle = 'rgba(255, 255, 255, ' + pulse + ')';
+        ctx.font = 'bold ' + Math.floor(displayH * 0.04) + 'px "Microsoft YaHei","PingFang SC",sans-serif';
+        ctx.shadowBlur = 0;
+        ctx.fillText('👆 点击屏幕开始', cx, cy + displayH * 0.22);
+
+        // 操作说明
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
+        ctx.font = Math.floor(displayH * 0.025) + 'px "Microsoft YaHei","PingFang SC",sans-serif';
+        ctx.fillText('点击=跳跃 | 长按=高跳 | 下滑=蹲下', cx, cy + displayH * 0.32);
+
+        ctx.textBaseline = 'alphabetic';
+    }
+
     /** 绘制游戏结束叠加层 */
     function drawGameOverOverlay() {
         // 半透明红色遮罩
@@ -1098,6 +1160,12 @@
 
     // ==================== 游戏主循环 ====================
     function update() {
+        if (!isStarted) {
+            // 等待开始
+            updateParticles();
+            return;
+        }
+
         if (isGameOver || isWin) {
             // 死亡/通关倒计时
             deathTimer -= 16.67; // 约60fps
@@ -1203,7 +1271,9 @@
         drawParticles();
 
         // 状态叠加层
-        if (isWin) {
+        if (!isStarted) {
+            drawStartScreen();
+        } else if (isWin) {
             drawWinOverlay();
         } else if (isGameOver) {
             drawGameOverOverlay();
@@ -1257,6 +1327,15 @@
         // 桌面端也支持鼠标操作（方便调试）
         canvas.addEventListener('mousedown', function (e) {
             e.preventDefault();
+            // 还没开始：点击开始游戏
+            if (!isStarted) {
+                isStarted = true;
+                if (!hasUserInteracted) {
+                    hasUserInteracted = true;
+                    tryPlayBgMusic();
+                }
+                return;
+            }
             touchStartY = e.clientY;
             touchStartTime = Date.now();
             touchMoved = false;
