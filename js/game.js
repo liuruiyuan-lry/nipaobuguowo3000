@@ -46,6 +46,9 @@
         BELT_SEGMENT_COUNT: 10,     // 传送带分段数量
         BELT_HEIGHT_RATIO: 0.06,    // 传送带高度比例
 
+        // 通关目标分数
+        WIN_SCORE: 3000,            // 达到此分数通关
+
         // 死亡后自动重启延迟
         RESTART_DELAY: 1400,        // 毫秒
     };
@@ -71,7 +74,8 @@
     var score = 0;              // 当前分数
     var highScore = 0;          // 历史最高分
     var gameSpeed = 0;          // 当前游戏速度
-    var isGameOver = false;     // 是否游戏结束
+    var isGameOver = false;     // 是否游戏结束（死亡）
+    var isWin = false;          // 是否通关
     var deathTimer = 0;         // 死亡延迟计时器
     var frameCount = 0;         // 总帧数计数
 
@@ -468,10 +472,40 @@
         // bgMusic.pause();
     }
 
+    /** 通关！达到目标分数 */
+    function doWin() {
+        if (isWin) return; // 防止重复触发
+
+        isWin = true;
+        deathTimer = 6000; // 通关后停留6秒再重启
+
+        // 更新最高分
+        if (score > highScore) {
+            highScore = score;
+            saveHighScore(highScore);
+            updateScoreDisplay();
+        }
+
+        // 庆祝粒子
+        for (var i = 0; i < 40; i++) {
+            particles.push({
+                x: Math.random() * displayW,
+                y: Math.random() * displayH,
+                vx: (Math.random() - 0.5) * 6,
+                vy: -(Math.random() * 5 + 2),
+                life: 50 + Math.random() * 60,
+                maxLife: 110,
+                size: 3 + Math.random() * 6,
+                color: ['#f39c12', '#e74c3c', '#2ecc71', '#3498db', '#9b59b6', '#f1c40f'][Math.floor(Math.random() * 6)],
+            });
+        }
+    }
+
     function resetGame() {
         score = 0;
         gameSpeed = CONFIG.BASE_SPEED;
         isGameOver = false;
+        isWin = false;
         deathTimer = 0;
         frameCount = 0;
         obstacleTimer = 0;
@@ -1022,10 +1056,50 @@
         ctx.textBaseline = 'alphabetic';
     }
 
+    /** 绘制通关胜利叠加层 */
+    function drawWinOverlay() {
+        // 半透明金色遮罩
+        ctx.fillStyle = 'rgba(241, 196, 15, 0.25)';
+        ctx.fillRect(0, 0, displayW, displayH);
+
+        var cx = displayW / 2;
+        var cy = displayH * 0.32;
+        var pulse = Math.sin(Date.now() / 300) * 0.08 + 1;
+
+        // 通关标题
+        ctx.fillStyle = '#fff';
+        ctx.font = 'bold ' + Math.floor(displayH * 0.085 * pulse) + 'px "Microsoft YaHei","PingFang SC",sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.shadowColor = 'rgba(241, 196, 15, 0.6)';
+        ctx.shadowBlur = 20;
+
+        ctx.fillText('🎉 恭喜通关！🎉', cx, cy);
+
+        // 得分
+        ctx.shadowBlur = 8;
+        ctx.shadowColor = 'rgba(0,0,0,0.4)';
+        ctx.font = 'bold ' + Math.floor(displayH * 0.05) + 'px "Microsoft YaHei","PingFang SC",sans-serif';
+        ctx.fillText('最终得分: ' + score, cx, cy + displayH * 0.1);
+
+        // 完成目标
+        ctx.fillStyle = '#f1c40f';
+        ctx.font = Math.floor(displayH * 0.035) + 'px "Microsoft YaHei","PingFang SC",sans-serif';
+        ctx.fillText('🏆 目标 ' + CONFIG.WIN_SCORE + ' 分达成！', cx, cy + displayH * 0.18);
+
+        // 提示
+        ctx.fillStyle = 'rgba(255,255,255,0.6)';
+        ctx.font = Math.floor(displayH * 0.024) + 'px "Microsoft YaHei","PingFang SC",sans-serif';
+        ctx.fillText('分享给你的朋友挑战吧~', cx, cy + displayH * 0.27);
+
+        ctx.shadowBlur = 0;
+        ctx.textBaseline = 'alphabetic';
+    }
+
     // ==================== 游戏主循环 ====================
     function update() {
-        if (isGameOver) {
-            // 死亡倒计时
+        if (isGameOver || isWin) {
+            // 死亡/通关倒计时
             deathTimer -= 16.67; // 约60fps
             updateParticles();
             if (deathTimer <= 0) {
@@ -1088,6 +1162,11 @@
         if (frameCount % 6 === 0) {
             score++;
             updateScoreDisplay();
+
+            // 达到通关分数！
+            if (score >= CONFIG.WIN_SCORE) {
+                doWin();
+            }
         }
 
         // ---- 更新粒子 ----
@@ -1123,8 +1202,10 @@
         // 绘制粒子
         drawParticles();
 
-        // 游戏结束叠加层
-        if (isGameOver) {
+        // 状态叠加层
+        if (isWin) {
+            drawWinOverlay();
+        } else if (isGameOver) {
             drawGameOverOverlay();
         }
     }
